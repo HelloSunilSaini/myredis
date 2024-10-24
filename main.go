@@ -6,12 +6,14 @@ import (
 	"net"
 
 	"github.com/hellosunilsaini/myredis/config"
+	"github.com/hellosunilsaini/myredis/connections"
+	"github.com/hellosunilsaini/myredis/events"
 )
 
 func main() {
 	conf := config.GetConfig()
 	// Running events processor
-	go ProcessEvents()
+	go events.ProcessEvents()
 	// Create a new server
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.ServerPort))
 	if err != nil {
@@ -29,6 +31,6 @@ func main() {
 			log.Printf("Error accepting connection: %v", err)
 			continue
 		}
-		AddConnection(conn)
+		connections.AddConnection(conn)
 	}
 }

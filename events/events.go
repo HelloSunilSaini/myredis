@@ -1,4 +1,4 @@
-package main
+package events
 
 import "fmt"
 
@@ -22,7 +22,7 @@ func GetEventChan() chan<- Event {
 func ProcessEvents() {
 	for {
 		event := <-EventChan
-		fmt.Printf("Incoming Message %s", event.Message)
-		event.Response <- "OK"
+		fmt.Printf("Incoming Message %s\n", event.Message)
+		event.Response <- "+OK\r\n"
 	}
 }

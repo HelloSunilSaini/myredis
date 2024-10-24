@@ -1,4 +1,4 @@
-package main
+package connections
 
 import (
 	"bufio"
@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/hellosunilsaini/myredis/config"
+	"github.com/hellosunilsaini/myredis/events"
 )
 
 var currentConn int
@@ -37,7 +38,7 @@ func RemoveConnection(conn net.Conn) {
 // handleConnection handles a single client connection
 func HandleConnection(conn net.Conn) {
 	responseChan := make(chan string)
-	eventChan := GetEventChan()
+	eventChan := events.GetEventChan()
 	defer func() {
 		RemoveConnection(conn) // Remove connection from the list
 	}()
@@ -61,7 +62,7 @@ func HandleConnection(conn net.Conn) {
 		fmt.Printf("Received from %s: %s\n", clientAddr, message)
 
 		// Sending message to the incoming channel
-		event := Event{
+		event := events.Event{
 			Message:  message,
 			Response: responseChan,
 		}
