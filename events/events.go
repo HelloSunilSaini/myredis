@@ -4,7 +4,7 @@ import "fmt"
 
 type Event struct {
 	Message  string // TODO: change message type
-	Response chan string
+	Response chan<- string
 }
 
 var EventChan chan Event
