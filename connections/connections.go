@@ -1,10 +1,9 @@
 package connections
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"net"
-	"strings"
 	"sync"
 
 	"github.com/hellosunilsaini/myredis/config"
@@ -45,25 +44,24 @@ func HandleConnection(conn net.Conn) {
 
 	clientAddr := conn.RemoteAddr().String()
 	fmt.Printf("New connection established from %s\n", clientAddr)
-	reader := bufio.NewReader(conn)
 
 	for {
 		// TODO: handle Idle connection timeout
 		// TODO: changes required as per redis-cli inputs, read and parse connection commands
 		// TODO: parsing have to be done here and for parsing errors result can be thrown directly from here
 		// without sending it for processing
-		message, err := reader.ReadString('\n')
-		if err != nil {
+		buf := make([]byte, 1024)
+		_, err := conn.Read(buf)
+		if err != nil && err != io.EOF {
 			fmt.Printf("Connection closed by %s\n", clientAddr)
 			return
 		}
 
-		message = strings.TrimSpace(message)
-		fmt.Printf("Received from %s: %s\n", clientAddr, message)
+		fmt.Printf("Received from %s: %s\n", clientAddr, string(buf))
 
 		// Sending message to the incoming channel
 		event := events.Event{
-			Message:  message,
+			Message:  string(buf),
 			Response: responseChan,
 		}
 		eventChan <- event
