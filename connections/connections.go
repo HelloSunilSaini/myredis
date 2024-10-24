@@ -36,6 +36,7 @@ func RemoveConnection(conn net.Conn) {
 
 // handleConnection handles a single client connection
 func HandleConnection(conn net.Conn) {
+	conf := config.GetConfig()
 	responseChan := make(chan string)
 	eventChan := events.GetEventChan()
 	defer func() {
@@ -50,18 +51,18 @@ func HandleConnection(conn net.Conn) {
 		// TODO: changes required as per redis-cli inputs, read and parse connection commands
 		// TODO: parsing have to be done here and for parsing errors result can be thrown directly from here
 		// without sending it for processing
-		buf := make([]byte, 1024)
-		_, err := conn.Read(buf)
+		buf := make([]byte, conf.InputBufferSize)
+		n, err := conn.Read(buf)
 		if err != nil && err != io.EOF {
 			fmt.Printf("Connection closed by %s\n", clientAddr)
 			return
 		}
-
-		fmt.Printf("Received from %s: %s\n", clientAddr, string(buf))
+		message := string(buf[:n])
+		fmt.Printf("Received from %s: %q\n", clientAddr, message)
 
 		// Sending message to the incoming channel
 		event := events.Event{
-			Message:  string(buf),
+			Message:  message,
 			Response: responseChan,
 		}
 		eventChan <- event

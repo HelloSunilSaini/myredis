@@ -22,7 +22,7 @@ func GetEventChan() chan<- Event {
 func ProcessEvents() {
 	for {
 		event := <-EventChan
-		fmt.Printf("Incoming Message %s\n", event.Message)
+		fmt.Printf("Incoming Message %q\n", event.Message)
 		event.Response <- "+OK\r\n"
 	}
 }
